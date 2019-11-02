@@ -1537,7 +1537,7 @@ printIntUnsigned:	addi 	sp, sp, -4			# Aloca espaco
 
 		 	li 	t2, 10				# carrega numero 10
 			li 	t1, 0				# carrega numero de digitos com 0
-loop1printIntUnsigned:	div 	t4, a0, t2			# divide por 10 (quociente)
+loop1printIntUnsigned:	divu 	t4, a0, t2			# divide por 10 (quociente)
 			rem 	t3, a0, t2			# resto
 			addi 	sp, sp, -4			# aloca espaco na pilha
 			sw 	t3, 0(sp)			# coloca resto na pilha
@@ -1554,7 +1554,7 @@ loop2printIntUnsigned:	lw 	t2, 0(sp)			# le digito da pilha
 			bne 	t1, zero, loop2printIntUnsigned	# eh o ultimo?
 			sb 	zero, 0(t0)			# insere \NULL na string
 		
-			la 	a0, TempBuffer			# Endereco do buffer da srting
+			la 	a0, TempBuffer			# Endereco do buffer da string
 			jal 	printString			# chama o print string
 				
 			lw 	ra, 0(sp)			# recupera a
