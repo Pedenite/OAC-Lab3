@@ -4,8 +4,8 @@
  	csrrsi zero,0,1 	# seta o bit de habilitaï¿½ï¿½o de interrupï¿½ï¿½o em ustatus (reg 0)	
 
 # Obs: A rotina Print Int Unsigned está na linha 1525 do SYSTEMv17.s
-# Problema: valores maiores que 0x7fffffff estão bugados (o mesmo acontece para 0x80000000 no Print Int normal)
-li a0, 0x80000000
+
+li a0, 0xffffffff
 li a1, 0
 li a2, 0
 li a3, 0x0ff

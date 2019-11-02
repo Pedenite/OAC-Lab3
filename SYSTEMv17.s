@@ -1537,8 +1537,8 @@ printIntUnsigned:	addi 	sp, sp, -4			# Aloca espaco
 
 		 	li 	t2, 10				# carrega numero 10
 			li 	t1, 0				# carrega numero de digitos com 0
-loop1printIntUnsigned:	divu 	t4, a0, t2			# divide por 10 (quociente)
-			rem 	t3, a0, t2			# resto
+loop1printIntUnsigned:	divu 	t4, a0, t2			# divide por 10 (quociente) sem sinal
+			remu 	t3, a0, t2			# resto sem sinal
 			addi 	sp, sp, -4			# aloca espaco na pilha
 			sw 	t3, 0(sp)			# coloca resto na pilha
 			mv 	a0, t4				# atualiza o numero com o quociente
