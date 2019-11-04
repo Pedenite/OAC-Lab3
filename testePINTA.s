@@ -42,7 +42,7 @@ csrrci s2, 3073, 0	#time
 csrrci s1, 3074, 0	#instret
 addi s1, s1, -2		#para pegar o valor de instruções no momento em que a função preenche acaba
 
-la a0, frequencia
+la a0, frequencia	# Frequência
 li a1, 0
 li a2, 0
 li a3, 0x0ff
@@ -50,7 +50,7 @@ li a4, 1
 li a7, 104
 ecall
 
-la a0, ciclos
+la a0, ciclos		# Ciclos
 li a1, 0
 li a2, 12
 li a3, 0x0ff
@@ -63,10 +63,10 @@ li a1, 72
 li a2, 12
 li a3, 0x0ff
 li a4, 1
-li a7, 101
+li a7, 136
 ecall
 
-la a0, instrucoes
+la a0, instrucoes	# Instruções
 li a1, 0
 li a2, 24
 li a3, 0x0ff
@@ -79,10 +79,10 @@ li a1, 104
 li a2, 24
 li a3, 0x0ff
 li a4, 1
-li a7, 101
+li a7, 136
 ecall
 
-la a0, tempoM
+la a0, tempoM		# Tempo medido
 li a1, 0
 li a2, 36
 li a3, 0x0ff
@@ -95,10 +95,10 @@ li a1, 120
 li a2, 36
 li a3, 0x0ff
 li a4, 1
-li a7, 101
+li a7, 136
 ecall
 
-la a0, cpi
+la a0, cpi		# CPI
 li a1, 0
 li a2, 48
 li a3, 0x0ff
@@ -106,12 +106,36 @@ li a4, 1
 li a7, 104
 ecall
 
-la a0, tempoC
+fcvt.s.w ft0, s1		# instret
+fcvt.s.w ft1, s0		# ciclos
+fdiv.s  ft2, ft0, ft1		# Calcula CPI = I/Ciclos
+fcvt.s.w ft3, zero
+
+fadd.s fa0, ft2, ft3
+li a1, 96
+li a2, 48
+li a3, 0x0ff
+li a4, 1
+li a7, 102
+ecall
+
+la a0, tempoC		# Tempo calculado
 li a1, 0
 li a2, 60
 li a3, 0x0ff
 li a4, 1
 li a7, 104
+ecall
+
+fmul.s ft4, ft0, ft2
+#fmul.s ft4, ft4, freq?		# Calcula texe = I*CPI*T
+
+fadd.s fa0, ft4, ft3
+li a1, 144
+li a2, 60
+li a3, 0x0ff
+li a4, 1
+li a7, 102
 ecall
 
 li a7, 10
