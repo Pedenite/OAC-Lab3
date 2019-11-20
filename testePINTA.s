@@ -2,34 +2,24 @@
 .eqv C 0x03f		#cor a pintar
 
 .data
+# A retangulo = 0x038
+# A circulo = 0x000
+# A poligono = 0x007
+# A engrenagem = 0x0c0
 
-.include "exemplos/engrenagem.data"
+FLOAT:		.float 	3.14159265659
 frequencia:	.string "Frequencia ="		# 13*8 = 104
 ciclos:		.string "Ciclos ="		# 9*8 = 72
 instrucoes:	.string "Instrucoes ="		# 13*8 = 104
 tempoM:		.string "Tempo Medido ="	# 15*8 = 120
 cpi:		.string "CPI media ="		# 12*8 = 96
 tempoC:		.string "Tempo Calculado ="	# 18*8 = 144
-
 .text
 
 MAIN:
 la tp,exceptionHandling	# carrega em tp o endereï¿½o base das rotinas do sistema ECALL
 csrrw zero,5,tp 	# seta utvec (reg 5) para o endereï¿½o tp
 csrrsi zero,0,1 	# seta o bit de habilitaï¿½ï¿½o de interrupï¿½ï¿½o em ustatus (reg 0)
-
-# Carrega a imagem1
-FORA:	li t1,0xFF000000	# endereco inicial da Memoria VGA - Frame 0
-	li t2,0xFF012C00	# endereco final 
-	la s1,engrenagem		# endereï¿½o dos dados da tela na memoria
-	addi s1,s1,8		# primeiro pixels depois das informaï¿½ï¿½es de nlin ncol
-LOOP1: 	beq t1,t2,FORA1		# Se for o ï¿½ltimo endereï¿½o entï¿½o sai do loop
-	lw t3,0(s1)		# le um conjunto de 4 pixels : word
-	sw t3,0(t1)		# escreve a word na memï¿½ria VGA
-	addi t1,t1,4		# soma 4 ao endereï¿½o
-	addi s1,s1,4
-	j LOOP1			# volta a verificar
-FORA1:
 
 li a0, 160		#x
 li a1, 30		#y
@@ -40,15 +30,46 @@ jal PREENCHE
 csrrci s0, 3072, 0	#cycle
 csrrci s2, 3073, 0	#time
 csrrci s1, 3074, 0	#instret
-addi s1, s1, -2		#para pegar o valor de instruções no momento em que a função preenche acaba
+addi s1, s1, -2		#para pegar o valor de instruï¿½ï¿½es no momento em que a funï¿½ï¿½o preenche acaba
 
-la a0, frequencia	# Frequência
-li a1, 0
-li a2, 0
-li a3, 0x0ff
-li a4, 1
-li a7, 104
+fcvt.s.w ft0, s1		# instret
+fcvt.s.w ft1, s0		# ciclos
+fdiv.s  ft2, ft1, ft0		# Calcula CPI = Ciclos/I
+fcvt.s.w ft6, s2		# texe
+fcvt.s.w ft3, zero
+
+li a0, 0
+li a1, 1
+li a7, 148		# clear screen
 ecall
+
+FREQ: 	li t0,0 
+	la t1,FLOAT
+	flw f0,0(t1)
+	fmv.x.s t0,f0
+	beq t0,zero,FORAFREQ  # testa para ver se tem a FPU
+
+  	li a7,104
+	la a0,frequencia
+	li a1,0
+	li a2,0
+	li a3,0x0ff
+	li a4,1
+	ecall
+
+	# syscall read freq
+	li a7,46
+	ecall
+	
+	fmv.s ft5, fa0	# guarda frequencia em ft5
+	
+	li a7,102
+	li a1,104
+	li a2,0
+	li a3,0x0ff
+	li a4,1
+	ecall
+FORAFREQ:
 
 la a0, ciclos		# Ciclos
 li a1, 0
@@ -66,7 +87,7 @@ li a4, 1
 li a7, 136
 ecall
 
-la a0, instrucoes	# Instruções
+la a0, instrucoes	# Instruï¿½ï¿½es
 li a1, 0
 li a2, 24
 li a3, 0x0ff
@@ -106,11 +127,6 @@ li a4, 1
 li a7, 104
 ecall
 
-fcvt.s.w ft0, s1		# instret
-fcvt.s.w ft1, s0		# ciclos
-fdiv.s  ft2, ft0, ft1		# Calcula CPI = I/Ciclos
-fcvt.s.w ft3, zero
-
 fadd.s fa0, ft2, ft3
 li a1, 96
 li a2, 48
@@ -128,7 +144,10 @@ li a7, 104
 ecall
 
 fmul.s ft4, ft0, ft2
-#fmul.s ft4, ft4, freq?		# Calcula texe = I*CPI*T
+li t0, 1
+fcvt.s.w ft7, t0
+fdiv.s ft5, ft7, ft5		# T = 1/freq 
+fmul.s ft4, ft4, ft5		# Calcula texe = I*CPI*T
 
 fadd.s fa0, ft4, ft3
 li a1, 144

@@ -12,13 +12,16 @@ msg3: 	.string "Digite sua Idade:"
 msg4: 	.string "Digite seu peso:"
 msg5: 	.string "Numero Randomico:"
 msg6: 	.string "Tempo do Sistema:"
+msg7:   .string "Clock:"
+msg8:   .string "MHz"
 buffer: .string "                                "
 
 .text
  	la tp,exceptionHandling	# carrega em tp o endereço base das rotinas do sistema ECALL
  	csrrw zero,5,tp 	# seta utvec (reg 5) para o endereço tp
  	csrrsi zero,0,1 	# seta o bit de habilitação de interrupção em ustatus (reg 0)																																																				
-																																																																																																																																																																					
+	
+	
 	jal CLSV
 	jal CLSV
 	jal CLSV
@@ -30,6 +33,7 @@ buffer: .string "                                "
 	jal INPUTFP
 	jal RAND
 	jal TIME
+	jal FREQ
 	jal TOCAR
 	jal SLEEP
 	jal DRAW
@@ -131,6 +135,44 @@ INPUTFP: li t0,0
 
 		
 FORAFP:	ret
+	
+# Leitura do divisor de frequencia
+# syscall print string	
+FREQ: 	li t0,0 
+	la t1,FLOAT
+	flw f0,0(t1)
+	fmv.x.s t0,f0
+	beq t0,zero,FORAFREQ  # testa para ver se tem a FPU
+
+  	li a7,104
+	la a0,msg7
+	li a1,0
+	li a2,64
+	li a3,0x0038
+	li a4,0
+	ecall
+
+	# syscall read freq
+	li a7,46
+	ecall
+	
+	li a7,102
+	li a1,56
+	li a2,64
+	li a3,0x0038
+	li a4,0
+	ecall
+
+  	li a7,104
+	la a0,msg8
+	li a1,184
+	li a2,64
+	li a3,0x0038
+	li a4,0
+	ecall
+
+FORAFREQ: ret	
+	
 	
 # Contatos imediatos do terceiro grau
 TOCAR:	li a0,62
@@ -293,9 +335,3 @@ SAI2:	addi t0,t0,1
 
 
 .include "SYSTEMv17.s"
-
-
-
-
-
-
