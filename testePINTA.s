@@ -1,4 +1,4 @@
-.eqv A 0x0c0		#cor da linha
+.eqv A 0x038		#cor da linha
 .eqv C 0x03f		#cor a pintar
 
 .data
